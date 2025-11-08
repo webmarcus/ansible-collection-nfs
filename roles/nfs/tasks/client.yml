@@ -1,0 +1,64 @@
+---
+# NFS Client setup tasks
+
+- name: Install NFS client packages
+  ansible.builtin.apt:
+    name:
+      - nfs-common
+    state: present
+  tags: [nfs-client, install]
+
+- name: Wait for NFS server to be available
+  ansible.builtin.wait_for:
+    host: "{{ nfs_server_host }}"
+    port: 2049
+    timeout: 60
+  when: nfs_mounts | length > 0
+  tags: [nfs-client, wait]
+
+- name: Test NFS server availability
+  ansible.builtin.command: "showmount -e {{ nfs_server_host }}"
+  register: showmount_result
+  changed_when: false
+  failed_when: false
+  when: nfs_mounts | length > 0
+  tags: [nfs-client, verify]
+
+- name: Display NFS exports from server
+  ansible.builtin.debug:
+    msg: "{{ showmount_result.stdout_lines }}"
+  when:
+    - nfs_mounts | length > 0
+    - showmount_result.rc == 0
+  tags: [nfs-client, verify]
+
+- name: Create mount point directories
+  ansible.builtin.file:
+    path: "{{ item.dest }}"
+    state: directory
+    owner: "{{ nfs_app_user }}"
+    group: "{{ nfs_app_group }}"
+    mode: '0755'
+  loop: "{{ nfs_mounts }}"
+  tags: [nfs-client, directories]
+
+- name: Mount NFS shares
+  ansible.posix.mount:
+    src: "{{ item.src }}"
+    path: "{{ item.dest }}"
+    fstype: nfs
+    opts: "{{ item.opts }}"
+    state: mounted
+  loop: "{{ nfs_mounts }}"
+  tags: [nfs-client, mount]
+
+- name: Verify NFS mounts
+  ansible.builtin.command: df -h
+  register: df_output
+  changed_when: false
+  tags: [nfs-client, verify]
+
+- name: Display mounted filesystems
+  ansible.builtin.debug:
+    msg: "{{ df_output.stdout_lines }}"
+  tags: [nfs-client, verify]

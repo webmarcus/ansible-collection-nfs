@@ -1,0 +1,33 @@
+---
+namespace: webmarcus
+name: nfs
+version: 1.0.0
+
+description: Generic NFS server and client configuration for Linux systems
+
+license:
+  - MIT
+
+tags:
+  - nfs
+  - storage
+  - networking
+  - server
+  - client
+
+repository: https://github.com/webmarcus/ansible-collection-nfs
+documentation: https://github.com/webmarcus/ansible-collection-nfs/blob/main/README.md
+homepage: https://github.com/webmarcus/ansible-collection-nfs
+issues: https://github.com/webmarcus/ansible-collection-nfs/issues
+
+authors:
+  - Marcus Hernandez <marcus@webmarcus.com>
+
+readme: README.md
+
+build_ignore:
+  - .git
+  - .gitignore
+  - .DS_Store
+  - '*.pyc'
+  - '__pycache__'

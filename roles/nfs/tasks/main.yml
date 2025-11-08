@@ -1,0 +1,12 @@
+---
+# NFS role - server and client setup
+
+- name: Include NFS server tasks
+  ansible.builtin.include_tasks: server.yml
+  when: enable_nfs_server | bool
+  tags: [nfs, nfs-server]
+
+- name: Include NFS client tasks
+  ansible.builtin.include_tasks: client.yml
+  when: enable_nfs_client | bool
+  tags: [nfs, nfs-client]

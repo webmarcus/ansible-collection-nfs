@@ -1,0 +1,75 @@
+---
+# ==============================================================================
+# NFS Role Default Variables
+# ==============================================================================
+#
+# This role provides generic NFS server and client configuration.
+# It can be used with any application by setting app_user and app_group.
+#
+# ==============================================================================
+
+# ----------------------------------------------------------------------------
+# Mode Configuration
+# ----------------------------------------------------------------------------
+# Enable NFS server or client functionality
+enable_nfs_server: false
+enable_nfs_client: false
+
+# ----------------------------------------------------------------------------
+# Application Configuration
+# ----------------------------------------------------------------------------
+# User and group for file ownership
+# Override these in your playbook/group_vars to match your application
+nfs_app_user: "root"
+nfs_app_group: "root"
+
+# ----------------------------------------------------------------------------
+# NFS Server Configuration
+# ----------------------------------------------------------------------------
+# Network allowed to access NFS exports
+# Default: RFC1918 private network (192.168.0.0/16)
+# Examples:
+#   - "192.168.1.0/24"  (Specific subnet)
+#   - "10.0.0.0/8"      (Large private network)
+#   - "172.16.0.0/12"   (Medium private network)
+#   - "100.64.0.0/10"   (CGNAT / Tailscale mesh)
+#   - "*"               (All networks - NOT recommended for security)
+nfs_allowed_networks: "192.168.0.0/16"
+
+# NFS export paths
+# List of paths to export via NFS
+# Each item must have 'path' and 'options'
+nfs_export_paths: []
+# Example:
+# nfs_export_paths:
+#   - path: "/opt/myapp/shared/data"
+#     options: "rw,sync,no_subtree_check,no_root_squash"
+#   - path: "/opt/myapp/shared/logs"
+#     options: "rw,sync,no_subtree_check,no_root_squash"
+
+# Shared directories to create on NFS server
+# These directories will be created with nfs_app_user:nfs_app_group ownership
+nfs_shared_dirs: []
+# Example:
+# nfs_shared_dirs:
+#   - "/opt/myapp/shared"
+#   - "/opt/myapp/shared/data"
+#   - "/opt/myapp/shared/logs"
+
+# ----------------------------------------------------------------------------
+# NFS Client Configuration
+# ----------------------------------------------------------------------------
+# NFS server hostname or IP address
+nfs_server_host: "nfs-server"
+
+# NFS mounts to configure on client
+# Each item must have 'src', 'dest', and 'opts'
+nfs_mounts: []
+# Example:
+# nfs_mounts:
+#   - src: "{{ nfs_server_host }}:/opt/myapp/shared/data"
+#     dest: "/opt/myapp/data"
+#     opts: "rw,sync,hard,intr"
+#   - src: "{{ nfs_server_host }}:/opt/myapp/shared/logs"
+#     dest: "/opt/myapp/logs"
+#     opts: "rw,sync,hard,intr"

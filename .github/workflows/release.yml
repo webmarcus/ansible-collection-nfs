@@ -1,0 +1,45 @@
+---
+name: Release to Ansible Galaxy
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get secrets from Bitwarden
+        uses: bitwarden/sm-action@v2
+        with:
+          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
+          base_url: https://vault.bitwarden.eu
+          secrets: |
+            1a1cddf1-43d7-4118-a595-b38f00c27e32 > GALAXY_API_KEY
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible
+        run: pip install ansible-core
+
+      - name: Build collection
+        run: ansible-galaxy collection build
+
+      - name: Publish to Ansible Galaxy
+        run: |
+          ansible-galaxy collection publish *.tar.gz --api-key=$GALAXY_API_KEY
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: collection-tarball
+          path: '*.tar.gz'
+          retention-days: 30

@@ -1,0 +1,49 @@
+---
+# NFS Server setup tasks
+
+- name: Install NFS server packages
+  ansible.builtin.apt:
+    name:
+      - nfs-kernel-server
+      - nfs-common
+    state: present
+  tags: [nfs-server, install]
+
+- name: Create NFS shared directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nfs_app_user }}"
+    group: "{{ nfs_app_group }}"
+    mode: '0755'
+  loop: "{{ nfs_shared_dirs }}"
+  when: nfs_shared_dirs | length > 0
+  tags: [nfs-server, directories]
+
+- name: Configure NFS exports
+  ansible.builtin.template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nfs exports
+  tags: [nfs-server, config]
+
+- name: Ensure NFS server is enabled and started
+  ansible.builtin.systemd:
+    name: nfs-kernel-server
+    enabled: yes
+    state: started
+  tags: [nfs-server, service]
+
+- name: Verify NFS exports
+  ansible.builtin.command: exportfs -v
+  register: nfs_exports_status
+  changed_when: false
+  tags: [nfs-server, verify]
+
+- name: Display NFS exports
+  ansible.builtin.debug:
+    msg: "{{ nfs_exports_status.stdout_lines }}"
+  tags: [nfs-server, verify]

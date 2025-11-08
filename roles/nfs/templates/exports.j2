@@ -1,0 +1,7 @@
+# /etc/exports - NFS exports configuration
+# Managed by Ansible - DO NOT EDIT MANUALLY
+# Controller: {{ inventory_hostname }}
+
+{% for export in nfs_export_paths %}
+{{ export.path }} {{ nfs_allowed_networks }}({{ export.options }})
+{% endfor %}

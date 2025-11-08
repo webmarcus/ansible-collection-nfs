@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  role_name: nfs
+  author: Marcus Österlund
+  description: Generic NFS server and client configuration
+  company: Webmarcus AB
+  license: MIT
+
+  min_ansible_version: "2.14"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+
+  galaxy_tags:
+    - nfs
+    - storage
+    - filesystem
+    - networking
+    - server
+    - client
+
+dependencies: []
